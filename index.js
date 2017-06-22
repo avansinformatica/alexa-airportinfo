@@ -24,7 +24,7 @@ app.error = function(exception, request, response) {
 
 app.intent('airportinfo', {
         'slots': {
-            'AIRPORTCODE': 'FAACODES'
+            'AIRPORTCODE': 'AMAZON.Airport' // 'FAACODES'
         },
         'utterances': [
             '{|flight|airport} {|delay|status} {|info} {|for} {-|AIRPORTCODE}'
@@ -36,20 +36,42 @@ app.intent('airportinfo', {
         var reprompt = 'Tell me an airport code to get delay information.';
         if (_.isEmpty(airportCode)) {
             var prompt = 'I didn\'t hear an airport code. Tell me an airport code.';
-            response.say(prompt).reprompt(reprompt).shouldEndSession(false);
+            response
+                .say(prompt)
+                .reprompt(reprompt)
+                .shouldEndSession(false);
             return true;
         } else {
+
+            // response
+            //     .say('we zijn nu hier')
+            //     .reprompt(reprompt)
+            //     .shouldEndSession(false);
+
             var faaHelper = new FAADataHelper();
-            faaHelper.requestAirportStatus(airportCode).then(function(airportStatus) {
-                // console.log(airportStatus);
-                response.say(faaHelper.formatAirportStatus(airportStatus)).send();
-            }).catch(function(err) {
-                // console.log(err.statusCode);
-                var prompt = 'I didn\'t have data for an airport code of ' + airportCode;
-                //https://github.com/matt-kruse/alexa-app/blob/master/index.js#L171
-                response.say(prompt).reprompt(reprompt).shouldEndSession(false).send();
-            });
-            return false;
+            return faaHelper
+                .requestAirportStatus(airportCode)
+                .then(function(airportStatus) {
+                    // console.log(airportStatus);
+                    var template = faaHelper.formatAirportStatus(airportStatus);
+                    console.log('received response: template = ' + template);
+                    response
+                        .say(template)
+                        .reprompt(reprompt)
+                        .shouldEndSession(false)
+                        .send();
+                })
+                .catch(function(err) {
+                    console.log(err.statusCode);
+                    var prompt = 'I didn\'t have data for an airport code of ' + airportCode;
+                    // https://github.com/matt-kruse/alexa-app/blob/master/index.js#L171
+                    response
+                        .say(prompt)
+                        .reprompt(reprompt)
+                        .shouldEndSession(false)
+                        .send();
+                });
+            // return false;
         }
     }
 );
