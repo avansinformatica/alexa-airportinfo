@@ -41,10 +41,10 @@ app.intent('airportinfo', {
         } else {
             var faaHelper = new FAADataHelper();
             faaHelper.requestAirportStatus(airportCode).then(function(airportStatus) {
-                console.log(airportStatus);
+                // console.log(airportStatus);
                 response.say(faaHelper.formatAirportStatus(airportStatus)).send();
             }).catch(function(err) {
-                console.log(err.statusCode);
+                // console.log(err.statusCode);
                 var prompt = 'I didn\'t have data for an airport code of ' + airportCode;
                 //https://github.com/matt-kruse/alexa-app/blob/master/index.js#L171
                 response.say(prompt).reprompt(reprompt).shouldEndSession(false).send();
@@ -53,6 +53,8 @@ app.intent('airportinfo', {
         }
     }
 );
+
 //hack to support custom utterances in utterance expansion string
-console.log(app.utterances().replace(/\{\-\|/g, '{'));
+// console.log(app.utterances().replace(/\{\-\|/g, '{'));
+
 module.exports = app;
