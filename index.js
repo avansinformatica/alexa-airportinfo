@@ -24,14 +24,13 @@ app.error = function(exception, request, response) {
 
 app.intent('airportinfo', {
         'slots': {
-            'AIRPORTCODE': 'AMAZON.Airport' // 'FAACODES'
+            'AIRPORTCODE': 'AMAZON.Airport'
         },
         'utterances': [
             '{|flight|airport} {|delay|status} {|info} {|for} {-|AIRPORTCODE}'
         ]
     },
     function(request, response) {
-        //get the slot
         var airportCode = request.slot('AIRPORTCODE');
         var reprompt = 'Tell me an airport code to get delay information.';
         if (_.isEmpty(airportCode)) {
@@ -42,17 +41,10 @@ app.intent('airportinfo', {
                 .shouldEndSession(false);
             return true;
         } else {
-
-            // response
-            //     .say('we zijn nu hier')
-            //     .reprompt(reprompt)
-            //     .shouldEndSession(false);
-
             var faaHelper = new FAADataHelper();
             return faaHelper
                 .requestAirportStatus(airportCode)
                 .then(function(airportStatus) {
-                    // console.log(airportStatus);
                     var template = faaHelper.formatAirportStatus(airportStatus);
                     console.log('received response: template = ' + template);
                     response
@@ -64,19 +56,14 @@ app.intent('airportinfo', {
                 .catch(function(err) {
                     console.log(err.statusCode);
                     var prompt = 'I didn\'t have data for an airport code of ' + airportCode;
-                    // https://github.com/matt-kruse/alexa-app/blob/master/index.js#L171
                     response
                         .say(prompt)
                         .reprompt(reprompt)
                         .shouldEndSession(false)
                         .send();
                 });
-            // return false;
         }
     }
 );
-
-//hack to support custom utterances in utterance expansion string
-// console.log(app.utterances().replace(/\{\-\|/g, '{'));
 
 module.exports = app;

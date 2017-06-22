@@ -1,7 +1,9 @@
 'use strict';
 var _ = require('lodash');
 var rp = require('request-promise');
+
 var ENDPOINT = 'http://services.faa.gov/airport/status/';
+var APPLICATION_JSON = '?format=application/json';
 
 function FAADataHelper() {}
 
@@ -17,7 +19,7 @@ FAADataHelper.prototype.requestAirportStatus = function(airportCode) {
 FAADataHelper.prototype.getAirportStatus = function(airportCode) {
     var options = {
         method: 'GET',
-        uri: ENDPOINT + airportCode + '?format=application/json',
+        uri: ENDPOINT + airportCode + APPLICATION_JSON,
         resolveWithFullResponse: true,
         json: true
     };
@@ -42,7 +44,6 @@ FAADataHelper.prototype.formatAirportStatus = function(airportStatus) {
             weather: weather
         });
     } else {
-        // no delay
         return _.template('There is currently no delay at ${airport}. ${weather}')({
             airport: airportStatus.name,
             weather: weather
